@@ -45,8 +45,20 @@ class Pagination {
         return new Promise(resolve => setTimeout(resolve, ms))
     }
 
-    async getPaginated({ url, page }) {
+    /*
 
+    */
+
+    async getPaginated({ url, page }) {
+        const result = await this.handleRequest({ url, page })
+        const lastId = result[result.length - 1]?.tid ?? 0
+
+        // BE CAREFULL, it's more than 1M requisitions
+        if (lastId === 0) return;
+
+        yield result
+        await Pagination.sleep(this.threshold)
+        yield* this.getPaginated({ url, page: lastId })
     }
 }
 
